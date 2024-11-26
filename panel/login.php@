@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<?php
+
+require("../config/config.default.php");
+require("../config/config.function.php");
+require("../config/config.asja.php");
+$cekdb = mysqli_query($koneksi, "SELECT 1 FROM pengawas LIMIT 1");
+if ($cekdb == false) {
+	header("Location: ../install.php");
+}
+
+$ceks = mysqli_fetch_array(mysqli_query($koneksi, "SELECT * FROM setting"));
+$token_bot = mysqli_fetch_array(mysqli_query($koneksi, "SELECT * FROM bot_telegram"));
+
+$namaaplikasi = $ceks['aplikasi'];
+$namasekolah = $ceks['sekolah'];
+
+if (isset($_POST['submit'])) {
+
+
+	$username = $_POST['username'];
+	$password = $_POST['password'];
+	$query = mysqli_query($koneksi, "SELECT * FROM pengawas WHERE username='$username'");
+
+	$cek = mysqli_num_rows($query);
+	$user = mysqli_fetch_array($query);
+
+
+	if ($cek <> 0) {
+
+		if ($user['level'] == 'admin') {
+
+			if (!password_verify($password, $user['password'])) {
+				$info = info("Password salah!", "NO");
+			} else {
+				$_SESSION['id_pengawas'] = $user['id_pengawas'];
+				$_SESSION['level'] = 'admin';
+				// validasi session token
+				$_SESSION['token'] = $ceks['db_token'];
+				$_SESSION['token1'] = $ceks['db_token1'];
+				$_SESSION['token_bot_telegram'] = $token_bot['botToken'];
+				echo "<script>location.href = '.';</script>";
+			}
+		} 
+		elseif ($user['level'] == 'peng') {
+			if (!password_verify($password, $user['password'])) {
+				$info = info("Password salah!", "NO");
+			} else {
+				$_SESSION['id_pengawas'] = $user['id_pengawas'];
+				$_SESSION['level'] = 'peng';
+
+				// validasi session token
+				$_SESSION['token'] = $ceks['db_token'];
+				$_SESSION['token1'] = $ceks['db_token1'];
+				$_SESSION['token_bot_telegram'] = $token_bot['botToken'];
+				echo "<script>location.href = '.';</script>";
+			}
+		}
+		elseif ($user['level'] == 'guru') {
+
+			if ($password == $user['password']) {
+				$_SESSION['id_pengawas'] = $user['id_pengawas'];
+				$_SESSION['level'] = 'guru';
+				$_SESSION['jrs'] = $user['id_jrs'];
+				$_SESSION['kls'] = $user['id_kls'];
+				$_SESSION['jabatan'] = $user['jabatan'];
+				// validasi session token
+				$_SESSION['token'] = $ceks['db_token'];
+				$_SESSION['token1'] = $ceks['db_token1'];
+				$_SESSION['token_bot_telegram'] = $token_bot['botToken'];
+
+				echo "<script>location.href = '.';</script>";
+			} else {
+				$info = info("Password salah!", "NO");
+			}
+		}
+	} elseif ($cek == 0 or $cekguru == 0) {
+		echo "<script>alert('Pengguna tidak terdaftar');</script>";
+	}
+}
+
+?>
+<html lang="en">
+<head>
+   <head>
+        <meta charset="utf-8" />
+        <meta content="width=device-width, initial-scale=1, shrink-to-fit=no" name="viewport" />
+         <title><?= $setting['sekolah'] ?></title>
+         <link href="https://unbk.kemdikbud.go.id/assets/css/front.min.css" rel="stylesheet" />
+         <link rel="icon" type="image/png" href="<?php echo "$homeurl/$setting[logo]"; ?>" />
+		 <link rel="stylesheet" href="assets/css/1.css">
+		 <link rel="stylesheet" href="assets/css/2.css">
+		 <link rel="stylesheet" href="assets/css/3.css">
+</head>
+
+<body data-spy="scroll" data-target="#menu" data-offset="100">
+    <div class="home-wrapper" id="home">
+        <div class="home-header">
+            <div class="container p-0">
+                <nav class="navbar navbar-expand-lg navbar-light" id="navbar-header">
+                    <a class="navbar-brand" href="javascript:;">
+                        <?php if($setting['LoginSiswaMainten']==1){ ?>
+                        <br><br>
+                        <?php }else{ ?>
+                        <img src="<?php echo "$homeurl/$setting[logo]"; ?>" style="max-height:50px" class="img-responsive" alt="Responsive image" height="75" />
+                        
+                        <div class="home-header-text d-none d-sm-block">
+                            <h4>e-Learning</h4>
+                            <h5><?= $setting['sekolah'] ?></h5>
+                            <h6>Tahun <?= date('Y') ?></h6>
+                            <?php } ?>
+                        </div>
+                    </a>
+                     <button class="navbar-toggler ml-auto" type="button" data-toggle="collapse" data-target="smkh.sch.id" aria-controls="menu" aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <div class="collapse navbar-collapse"> <marquee width='75%'>Every morning you have two choices: Continue to sleep with your dreams or wake up to chase them</marquee>
+                        <ul class="navbar-nav ml-auto">
+                            <li class="nav-item">
+                                <?php if($setting['LoginSiswaMainten']==1){ ?>
+                                <?php }else{ ?>
+                                <a class="btn btn-primary" href="https://yayasan.alkathiriyah.id" terget="_blank">Website</a>
+                            </li>
+                            <?php } ?>
+                            <li class="nav-item">
+                                <?php if($setting['LoginSiswaMainten']==1){ ?>
+                                <?php }else{ ?>
+                                <a class="btn btn-warning" href="<?php echo "$homeurl"; ?>/login.php" terget="_blank">Login Siswa</a>
+                            </li>
+                            <?php } ?>
+                        </ul>
+                    </div>
+                </nav>
+            </div>
+        </div>
+        
+        <div class="home-banner">
+            <div class="home-banner-bg home-banner-bg-color"></div>
+            <div class="home-banner-bg home-banner-bg-img"></div>
+            <div class="container mt-5">
+                <div class="row">
+            
+                    <div class="col-sm-8">
+                        <div id="carousel" class="carousel slide" data-ride="carousel">
+                            
+                            <div class="carousel-inner">
+                                <div class="carousel-item active">
+                                    <div >
+                                        
+                                    <?php if($setting['LoginSiswaMainten']==1){ ?>
+                                    <?php }else{ ?>
+                                    <h5 data-animation="animated fadeInDownBig">
+                                            السَّلاَمُ عَلَيْكُمْ وَرَحْمَةُ اللهِ وَبَرَكَاتُهُ
+                                        </h5>
+                                        <h5 data-animation="animated fadeInDownBig">
+                                            Selamat Datang di e-Learning <?= $setting['sekolah'] ?>
+                                        </h5>
+                                   
+                                        <p data-animation="animated slideInRight" data-delay="1s">
+                                            Aplikasi Pembelajaran Siswa <?= $setting['sekolah'] ?> Tahun <?= date('Y') ?>
+                                        </p>
+                                        <p data-animation="animated slideInRight" data-delay="2s">
+                                            Silakan Login untuk menyampaikan materi dan tugas
+                                        </p>
+                                        <p data-animation="animated flipInX" data-delay="3s">
+                                            <a href="https://www.youtube.com/watch?v=uOpf_uzusUc" target="_blank" class="btn btn-warning nav-link">
+                                                TUTORIALNYA DI SINI
+                                            </a>
+                                        </p>
+                                        <?php } ?>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="card card-login bg-info">
+                            <div class="card-body">
+                                <?php if($setting['LoginSiswaMainten']==1){ ?>
+                                <center><span style="font-size: 20px;"><b>KAMI SEGERA KEMBALI</b></span></center>
+							<center>
+								<div class="alert alert-warning">
+								  <strong>Mohon Maaf ! <br></strong> Sitem Sedang Maintenance.<br>
+								  Silahkan Kembali Beberapa Saat Lagi.
+								</div>
+							</center>
+                                <?php }else{ ?>	
+                               <h6 style="text-align:center ">SILAKAN LOGIN</h6>
+                                <form class="form-signin" action='' method='post' name="login" style="z-index: 2;">
+                                    <div class="form-group">
+                                        <span class="fa fa-user"></span>
+                                        <input type="text" class="form-control" name="username" placeholder="Username" required autocomplete="off">
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <span class="fa fa-key"></span>
+                                        <input type="password" class="form-control" name="password" id="inputPassword" placeholder="Password">
+                                    </div>
+                                    <button class="btn btn-primary btn-block" button name='submit'>Masuk</button>
+                                </form>
+                                <?php } ?>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+</body>
+
+</html>
